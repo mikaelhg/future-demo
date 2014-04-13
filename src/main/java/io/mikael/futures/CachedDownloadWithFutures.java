@@ -5,10 +5,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class CachedDownloadWithFutures {
 
@@ -23,13 +20,19 @@ public class CachedDownloadWithFutures {
     }
 
     public static void main(final String ... args) throws Exception {
+
         final CompletableFuture<Optional<Document>> f = CACHE.computeIfAbsent(
                 "http://github.com/",
                 (key) -> CompletableFuture.supplyAsync(() -> download(key)));
 
-        final Optional<Document> doc = f.get(1500, TimeUnit.MILLISECONDS);
+        final Optional<Document> doc;
+        try {
+            doc = f.get(1500, TimeUnit.MILLISECONDS);
+        } catch (final TimeoutException e) {
+            throw new RuntimeException("TOO SLOW", e);
+        }
 
-        System.out.println(doc.orElseThrow(() -> new RuntimeException("TOO SLOW")));
+        System.out.println(doc.orElseThrow(() -> new RuntimeException("IOEXCEPTION")));
     }
 
 }
