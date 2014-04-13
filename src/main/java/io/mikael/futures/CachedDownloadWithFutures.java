@@ -7,6 +7,11 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.*;
 
+/**
+ * In an actual production use case, you'd probably want to retry failed downloads, which would be
+ * easy to achieve by squeezing the {@code CompletableFuture<Optional<Document>>} object into a more
+ * easily handleable facade holder class which can retry when needed.
+ */
 public class CachedDownloadWithFutures {
 
     private final static ConcurrentMap<String, CompletableFuture<Optional<Document>>> CACHE = new ConcurrentHashMap<>();
